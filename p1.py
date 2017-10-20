@@ -319,7 +319,6 @@ class System:
                 if (self.processes[current_p].rmBurstTime == self.processes[current_p].CPUburstTime):
                     self.processes[current_p].addWaitTime(self.cputime-self.processes[current_p].nextArrTime) 
                 else: 
-                    print (self.cputime, self.processes[current_p].stop)
                     self.processes[current_p].addWaitTime(self.cputime-self.processes[current_p].stop) 
                 # track wait time 
                 self.cputime += self.t_cs/2 # switch in 
@@ -342,11 +341,14 @@ class System:
                 if self.numArrived != len(self.processes):
                     # not all processes have been arrived 
                     for i in self.block:
-                        if self.processes[self.findProcess(i)].nextArrTime <= self.cputime + self.processes[current_p].rmBurstTime and self.processes[self.findProcess(i)].rmNumOfBurst > 0:
-                            if self.processes[self.findProcess(i)].CPUburstTime < self.processes[current_p].rmBurstTime + self.processes[current_p].start - self.processes[self.findProcess(i)].nextArrTime and i != pot_p:
+                        if self.processes[self.findProcess(i)].nextArrTime <= self.cputime + self.processes[current_p].rmBurstTime and \
+                        self.processes[self.findProcess(i)].rmNumOfBurst > 0:
+                            if self.processes[self.findProcess(i)].CPUburstTime < self.processes[current_p].rmBurstTime + \
+                            self.processes[current_p].start - self.processes[self.findProcess(i)].nextArrTime and i != pot_p:
                                 pot_p = i
                                 break
-                    # get a process possibly will preempt, check if there are any process not arrived yet will preempt before that process/ if not get, pot_p is current_p
+                    # get a process possibly will preempt, check if there are any process not arrived yet 
+                    # will preempt before that process/ if not get, pot_p is current_p
                     tmpProcess = sorted(self.processes, key = lambda x:(x.arrivalTime, x.CPUburstTime, x.id))
                     for i in tmpProcess:
                         if i.arrived == 0:
@@ -369,7 +371,8 @@ class System:
                         self.numpreemption += 1
                         if self.processes[self.findProcess(pot_p)].arrived == 0:
                             # new process 
-                            print("time {}ms: Process {} arrived and will preempt {} [Q {}]".format(self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
+                            print("time {}ms: Process {} arrived and will preempt {} [Q {}]".format(\
+                                self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
                             self.processes[self.findProcess(pot_p)].arriveCPU() # not in ready part
                             self.numArrived += 1
                             self.srtBlock(self.processes[self.findProcess(pot_p)].nextArrTime)
@@ -379,21 +382,26 @@ class System:
                             self.srtReadySort()
                             self.ready.insert(0 ,pot_p)
                             self.ready.append(self.processes[current_p].id)
-                            self.processes[current_p].rmBstTimeSet(self.processes[current_p].rmBurstTime - self.processes[self.findProcess(pot_p)].nextArrTime + self.processes[current_p].start + self.t_cs/2)
+                            self.processes[current_p].rmBstTimeSet(\
+                                self.processes[current_p].rmBurstTime - \
+                                self.processes[self.findProcess(pot_p)].nextArrTime + \
+                                self.processes[current_p].start + self.t_cs/2)
                             self.cputime = self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs/2
                             # start over the queue
                             self.processes[current_p].stopSet(self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs)
                             continue
                         else: 
                             # block preempt
-                            print("time {}ms: Process {} completed I/O and will preempt {} [Q {}]".format(self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
+                            print("time {}ms: Process {} completed I/O and will preempt {} [Q {}]".format(\
+                                self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
                             self.block.remove(pot_p)
                             self.srtBlock(self.processes[self.findProcess(pot_p)].nextArrTime)
                             self.srtReady(self.processes[self.findProcess(pot_p)].nextArrTime) # update the process to set before the preempt process 
                             self.srtReadySort()
                             self.ready.insert(0,pot_p)
                             self.ready.append(self.processes[current_p].id)
-                            self.processes[current_p].rmBstTimeSet(self.processes[current_p].rmBurstTime - self.processes[self.findProcess(pot_p)].nextArrTime + self.processes[current_p].start + self.t_cs/2)
+                            self.processes[current_p].rmBstTimeSet(self.processes[current_p].rmBurstTime - \
+                                self.processes[self.findProcess(pot_p)].nextArrTime + self.processes[current_p].start + self.t_cs/2)
                             self.cputime = self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs/2 # and add up switch out time 
                             self.processes[current_p].stopSet(self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs)
                             continue
@@ -401,8 +409,10 @@ class System:
                     # all processes have arrived at least once 
                     # only need to check io queue
                     for i in self.block:
-                        if self.processes[self.findProcess(i)].nextArrTime <= self.cputime + self.processes[current_p].rmBurstTime and self.processes[self.findProcess(i)].rmNumOfBurst > 0:
-                            if self.processes[self.findProcess(i)].CPUburstTime < self.processes[current_p].rmBurstTime + self.processes[current_p].start - self.processes[self.findProcess(i)].nextArrTime and i != pot_p:
+                        if self.processes[self.findProcess(i)].nextArrTime <= self.cputime + self.processes[current_p].rmBurstTime and \
+                        self.processes[self.findProcess(i)].rmNumOfBurst > 0:
+                            if self.processes[self.findProcess(i)].CPUburstTime < self.processes[current_p].rmBurstTime + \
+                            self.processes[current_p].start - self.processes[self.findProcess(i)].nextArrTime and i != pot_p:
                                 pot_p = i
                                 break
                     if pot_p == self.processes[current_p].id:
@@ -411,14 +421,16 @@ class System:
                     else:
                         self.numpreemption += 1
                         # preemption from process turn back from i/o queue\
-                        print("time {}ms: Process {} completed I/O and will preempt {} [Q {}]".format(self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
+                        print("time {}ms: Process {} completed I/O and will preempt {} [Q {}]".format(\
+                            self.processes[self.findProcess(pot_p)].nextArrTime, pot_p, self.processes[current_p].id, self.readyOut()))
                         self.block.remove(pot_p)
                         self.srtBlock(self.processes[self.findProcess(pot_p)].nextArrTime)
                         self.srtReady(self.processes[self.findProcess(pot_p)].nextArrTime) # update the process to set before the preempt process 
                         self.srtReadySort()
                         self.ready.insert(0,pot_p)
                         self.ready.append(self.processes[current_p].id)
-                        self.processes[current_p].rmBstTimeSet(self.processes[current_p].rmBurstTime - self.processes[self.findProcess(pot_p)].nextArrTime + self.processes[current_p].start + self.t_cs/2)
+                        self.processes[current_p].rmBstTimeSet(self.processes[current_p].rmBurstTime - \
+                            self.processes[self.findProcess(pot_p)].nextArrTime + self.processes[current_p].start + self.t_cs/2)
                         self.cputime = self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs/2 # and add up switch out time 
                         self.processes[current_p].stopSet(self.processes[self.findProcess(pot_p)].nextArrTime + self.t_cs)
                         continue
@@ -440,13 +452,16 @@ class System:
                 if self.processes[current_p].rmNumOfBurst > 0:  
                 # if there still nums of burst left 
                     if self.processes[current_p].rmNumOfBurst == 1:
-                        print("time {}ms: Process {} completed a CPU burst; {} burst to go [Q {}]".format(self.cputime, self.processes[current_p].id, self.processes[current_p].rmNumOfBurst, self.readyOut()))
+                        print("time {}ms: Process {} completed a CPU burst; {} burst to go [Q {}]".format(\
+                            self.cputime, self.processes[current_p].id, self.processes[current_p].rmNumOfBurst, self.readyOut()))
                     else:
-                        print("time {}ms: Process {} completed a CPU burst; {} bursts to go [Q {}]".format(self.cputime, self.processes[current_p].id, self.processes[current_p].rmNumOfBurst, self.readyOut()))
+                        print("time {}ms: Process {} completed a CPU burst; {} bursts to go [Q {}]".format(\
+                            self.cputime, self.processes[current_p].id, self.processes[current_p].rmNumOfBurst, self.readyOut()))
                 else: 
                     print("time {}ms: Process {} terminated [Q {}]".format(self.cputime, self.processes[current_p].id, self.readyOut()))
                 if self.processes[current_p].rmNumOfBurst > 0 and self.processes[current_p].iotime > 0:  # enter io 
-                    print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q {}]".format(self.cputime, self.processes[current_p].id, self.processes[current_p].nextArrTime , self.readyOut()))
+                    print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q {}]".format(\
+                        self.cputime, self.processes[current_p].id, self.processes[current_p].nextArrTime , self.readyOut()))
                     self.block.append(self.processes[current_p].id)
                 self.srtBlock(self.cputime)
                 self.srtReady(self.cputime)
@@ -463,7 +478,8 @@ class System:
                 self.srtReady(self.processes[current_p].nextArrTime)
                 self.ready.append(self.block[0])
                 self.srtReadySort()
-                print("time {}ms: Process {} completed I/O; added to ready queue [Q {}]".format(self.processes[current_p].nextArrTime, self.processes[current_p].id , self.readyOut()))
+                print("time {}ms: Process {} completed I/O; added to ready queue [Q {}]".format(\
+                    self.processes[current_p].nextArrTime, self.processes[current_p].id , self.readyOut()))
                 self.cputime = self.processes[current_p].nextArrTime
                 self.block.remove(self.block[0])
             else: 
