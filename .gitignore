@@ -1,0 +1,5 @@
+# project test txts
+*.txt
+
+# system junk 
+*.DS_Store
