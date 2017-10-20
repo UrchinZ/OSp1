@@ -229,48 +229,38 @@ def rr (task, data, t_cs, timeslice):
 					prev_cpu = -1
 			if ready_queue.size > 0 or blocked_queue.size>0:
 				t = 0
-
-	"""	
-	print(info)
-	print(data)
-	print("ready queue: "+str(ready_queue))
-	print("blocked queue: " + str(blocked_queue))
-	"""
-	print(completed)
 	
 	total_burst = 0
 	total_round = 0
 	total_io = 0
 	total_time = 0
+	cs_in_io = 0
 
 	for d in data:
 		total_burst += d[1]*d[2]
 		total_round += d[2]
 		total_io += d[3] * (d[2]-1)
+		cs_in_io += (t_cs/2)*(d[2]-1)
 	
-	for c in completed[1]:
-		total_time += int(c)
+	for c in range(0,len(completed[1])):
+		total_time += int(completed[1][c]) - arrival_time[c]
 
-	for a in arrival_time:
-		total_time -= a
-
-	total_cs = (cs+preempt)*(t_cs/2)
 	average_burst = float(total_burst)/float(total_round)
-
-	print(total_io)
-	total_ta = total_time - total_io 
-	average_ta = float(total_ta) / float(total_round)
 	
+	total_ta = total_time - total_io + len(task) * t_cs/2
+	average_ta = float(total_ta) / float(total_round)
 
-	print("total cs time: "+str(total_cs))
-	print ("total time: "+str(total_time))
-	print("average turnaround: " + str(round(average_ta,2)))
+	total_wait = total_ta - total_burst - cs*t_cs
+	average_wait = float(total_wait) / float(total_round)
+	
+	
 	#correct output
-	print("average burst: "+str(round(average_burst,2)))
-	print ("context swith: " + str(cs))
-	print("preempt: "+str(preempt))
-
-
+	print("Algorithm RR")
+	print("-- average CPU burst time: "+"{0:.2f}".format(average_burst)+" ms")
+	print("-- average wait time: " + "{0:.2f}".format(average_wait)+" ms")
+	print("-- average turnaround time: " + "{0:.2f}".format(average_ta)+" ms")
+	print("-- total number of context switches: " + str(cs))
+	print("-- total number of preemptions: "+str(preempt))
 
 if __name__ == '__main__':
 	num_cmd = len(sys.argv)
